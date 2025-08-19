@@ -1,0 +1,118 @@
+.animated-background {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  overflow: hidden;
+  z-index: 0;
+}
+
+.gradient-bg {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: linear-gradient(135deg, #fce7f3, #f3e8ff, #e0e7ff);
+}
+
+.floating-hearts {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+}
+
+.floating-heart {
+  position: absolute;
+  opacity: 0.2;
+  animation: float 15s ease-in-out infinite;
+}
+
+.heart-element {
+  color: #f472b6;
+  fill: #fce7f3;
+}
+
+.gradient-orb {
+  position: absolute;
+  width: 18rem;
+  height: 18rem;
+  border-radius: 50%;
+  mix-blend-mode: multiply;
+  filter: blur(40px);
+  opacity: 0.3;
+  animation: blob 7s infinite;
+}
+
+.orb-1 {
+  top: 5rem;
+  left: 5rem;
+  background: linear-gradient(135deg, #f472b6, #a855f7);
+}
+
+.orb-2 {
+  top: 10rem;
+  right: 5rem;
+  background: linear-gradient(135deg, #a855f7, #6366f1);
+  animation-delay: 2s;
+}
+
+.orb-3 {
+  bottom: 5rem;
+  left: 10rem;
+  background: linear-gradient(135deg, #6366f1, #f472b6);
+  animation-delay: 4s;
+}
+
+.floating-particles {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+}
+
+.particle {
+  position: absolute;
+  width: 0.5rem;
+  height: 0.5rem;
+  background: white;
+  border-radius: 50%;
+  opacity: 0.6;
+  animation: pulse 2s infinite;
+}
+
+@keyframes float {
+  0%, 100% { 
+    transform: translateY(0px) rotate(0deg); 
+  }
+  50% { 
+    transform: translateY(-20px) rotate(180deg); 
+  }
+}
+
+@keyframes blob {
+  0%, 100% { 
+    transform: translate(0px, 0px) scale(1); 
+  }
+  33% { 
+    transform: translate(30px, -50px) scale(1.1); 
+  }
+  66% { 
+    transform: translate(-20px, 20px) scale(0.9); 
+  }
+}
+
+@keyframes pulse {
+  0%, 100% {
+    opacity: 0.6;
+    transform: scale(1);
+  }
+  50% {
+    opacity: 0.3;
+    transform: scale(1.2);
+  }
+}

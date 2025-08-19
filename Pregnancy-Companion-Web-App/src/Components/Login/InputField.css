@@ -1,0 +1,111 @@
+.input-field-container {
+  position: relative;
+  margin-bottom: 1.5rem;
+}
+
+.input-wrapper {
+  position: relative;
+  transition: all 0.3s ease;
+  transform: scale(1);
+}
+
+.input-wrapper.focused {
+  transform: scale(1.02);
+}
+
+.input-icon-left {
+  position: absolute;
+  top: 50%;
+  left: 1rem;
+  transform: translateY(-50%);
+  pointer-events: none;
+  z-index: 1;
+}
+
+.icon {
+  width: 1.25rem;
+  height: 1.25rem;
+  transition: color 0.3s ease;
+}
+
+.icon-default {
+  color: #9ca3af;
+}
+
+.icon-focused {
+  color: #a855f7;
+}
+
+.input-field {
+  width: 100%;
+  padding: 1rem 1rem 1rem 3rem;
+  background: rgba(255, 255, 255, 0.8);
+  backdrop-filter: blur(4px);
+  border: 2px solid #e5e7eb;
+  border-radius: 1rem;
+  transition: all 0.3s ease;
+  outline: none;
+  color: #374151;
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+}
+
+.input-field:hover {
+  border-color: #d8b4fe;
+  box-shadow: 0 10px 25px rgba(168, 85, 247, 0.15);
+}
+
+.input-field:focus {
+  border-color: #a855f7;
+  background: rgba(255, 255, 255, 0.9);
+  box-shadow: 0 10px 25px rgba(168, 85, 247, 0.25);
+}
+
+.input-field::placeholder {
+  color: #9ca3af;
+}
+
+.password-toggle {
+  position: absolute;
+  top: 50%;
+  right: 1rem;
+  transform: translateY(-50%);
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.toggle-icon {
+  width: 1.25rem;
+  height: 1.25rem;
+  color: #9ca3af;
+  transition: color 0.2s ease;
+}
+
+.toggle-icon:hover {
+  color: #a855f7;
+}
+
+.focus-indicator {
+  position: absolute;
+  bottom: -0.25rem;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 0;
+  height: 0.25rem;
+  background: linear-gradient(90deg, #f472b6, #a855f7, #6366f1);
+  border-radius: 9999px;
+  animation: expand 0.3s ease-out forwards;
+}
+
+@keyframes expand {
+  0% {
+    width: 0;
+  }
+  100% {
+    width: 100%;
+  }
+}
