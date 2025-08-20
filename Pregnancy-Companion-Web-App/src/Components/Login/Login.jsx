@@ -5,6 +5,7 @@ import InputField from "./InputField";
 import AnimatedBackground from "./AnimatedBackground";
 import LoadingButton from "./LoadingButton";
 import SuccessNotification from "./SuccessNotification";
+import { Link } from "react-router-dom";
 
 const Login = () => {
   const [formData, setFormData] = useState({ emailOrPhone: "", password: "" });
@@ -107,11 +108,12 @@ const Login = () => {
 
           {/* Footer */}
           <p className="login-footer">
-            Don't have an account?{" "}
-            <a href="#" className="signup-link">
-              Sign Up
-            </a>
-          </p>
+  Don’t have an account?{" "}
+  <Link to="/signup" className="signup-link">
+    Sign Up
+  </Link>
+</p>
+
         </div>
 
         {/* Floating Action Hint */}
