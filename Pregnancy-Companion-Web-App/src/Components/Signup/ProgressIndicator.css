@@ -1,0 +1,178 @@
+.progress-indicator {
+  position: relative;
+  margin-bottom: 3rem;
+  padding: 1rem 0;
+}
+
+.progress-bar-container {
+  position: absolute;
+  top: 2rem;
+  left: 50px;
+  right: 50px;
+  height: 4px;
+  background: rgba(168, 85, 247, 0.2);
+  border-radius: 2px;
+  overflow: hidden;
+}
+
+.progress-bar-fill {
+  height: 100%;
+  background: linear-gradient(135deg, #f472b6, #a855f7, #6366f1);
+  border-radius: 2px;
+  transition: width 0.5s ease;
+  position: relative;
+}
+
+.progress-bar-fill::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.4), transparent);
+  animation: shimmer 2s infinite;
+}
+
+.steps-container {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  position: relative;
+  z-index: 2;
+}
+
+.step-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  flex: 1;
+  max-width: 100px;
+}
+
+.step-circle {
+  width: 50px;
+  height: 50px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 700;
+  font-size: 0.9rem;
+  transition: all 0.3s ease;
+  margin-bottom: 0.75rem;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  position: relative;
+}
+
+.step-circle.pending {
+  background: #f3f4f6;
+  border: 3px solid #e5e7eb;
+  color: #9ca3af;
+}
+
+.step-circle.active {
+  background: linear-gradient(135deg, #f472b6, #a855f7);
+  border: 3px solid #a855f7;
+  color: white;
+  transform: scale(1.1);
+  animation: pulse-active 2s infinite;
+}
+
+.step-circle.completed {
+  background: linear-gradient(135deg, #10b981, #059669);
+  border: 3px solid #059669;
+  color: white;
+}
+
+.step-number {
+  font-size: 1rem;
+  font-weight: 700;
+}
+
+.step-emoji {
+  font-size: 1.2rem;
+}
+
+.check-icon {
+  color: white;
+  font-weight: bold;
+}
+
+.step-label {
+  text-align: center;
+  margin-top: 0.5rem;
+}
+
+.label-text {
+  font-size: 0.85rem;
+  font-weight: 600;
+  transition: all 0.3s ease;
+  white-space: nowrap;
+}
+
+.label-text.pending {
+  color: #9ca3af;
+}
+
+.label-text.active {
+  color: #a855f7;
+  font-weight: 700;
+}
+
+.label-text.completed {
+  color: #059669;
+  font-weight: 700;
+}
+
+/* Animations */
+@keyframes pulse-active {
+  0%, 100% {
+    box-shadow: 0 4px 12px rgba(168, 85, 247, 0.3);
+  }
+  50% {
+    box-shadow: 0 4px 20px rgba(168, 85, 247, 0.6);
+  }
+}
+
+@keyframes shimmer {
+  0% {
+    transform: translateX(-100%);
+  }
+  100% {
+    transform: translateX(100%);
+  }
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  .step-circle {
+    width: 40px;
+    height: 40px;
+    font-size: 0.8rem;
+  }
+  
+  .step-emoji {
+    font-size: 1rem;
+  }
+  
+  .label-text {
+    font-size: 0.75rem;
+  }
+  
+  .progress-bar-container {
+    left: 20px;
+    right: 20px;
+  }
+}
+
+@media (max-width: 480px) {
+  .step-circle {
+    width: 35px;
+    height: 35px;
+  }
+  
+  .label-text {
+    font-size: 0.7rem;
+  }
+}

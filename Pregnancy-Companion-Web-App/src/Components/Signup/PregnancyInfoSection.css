@@ -1,0 +1,165 @@
+.week-display {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.week-display input {
+  flex: 1;
+}
+
+.week-label {
+  color: #6b7280;
+  font-weight: 600;
+  font-size: 0.9rem;
+  white-space: nowrap;
+}
+
+.previous-pregnancy-section {
+  background: rgba(59, 130, 246, 0.05);
+  border: 2px solid rgba(59, 130, 246, 0.15);
+  border-radius: 15px;
+  padding: 1.5rem;
+  margin: 2rem 0;
+  animation: slideIn 0.5s ease;
+}
+
+.previous-title {
+  color: #1d4ed8;
+  font-weight: 700;
+  margin-bottom: 1.5rem;
+  font-size: 1.1rem;
+  display: flex;
+  align-items: center;
+}
+
+.previous-icon {
+  font-size: 1.3rem;
+  margin-right: 0.5rem;
+}
+
+.conception-info {
+  background: rgba(168, 85, 247, 0.05);
+  border: 2px solid rgba(168, 85, 247, 0.15);
+  border-radius: 15px;
+  padding: 1.5rem;
+  margin: 2rem 0;
+}
+
+.conception-title {
+  color: #7c3aed;
+  font-weight: 700;
+  margin-bottom: 1.5rem;
+  font-size: 1.1rem;
+  display: flex;
+  align-items: center;
+}
+
+.conception-icon {
+  font-size: 1.3rem;
+  margin-right: 0.5rem;
+}
+
+.pregnancy-journey-info {
+  background: linear-gradient(135deg, #fef3c7, #fde68a);
+  border: 2px solid rgba(245, 158, 11, 0.2);
+  border-radius: 15px;
+  padding: 1.5rem;
+  margin-top: 2rem;
+}
+
+.journey-header {
+  display: flex;
+  align-items: center;
+  margin-bottom: 1rem;
+  color: #92400e;
+  font-size: 1.1rem;
+}
+
+.journey-icon {
+  font-size: 1.3rem;
+  margin-right: 0.5rem;
+}
+
+.journey-text {
+  color: #78350f;
+  margin: 0;
+  font-weight: 500;
+  line-height: 1.6;
+}
+
+/* Date input styling */
+input[type="date"] {
+  position: relative;
+  padding-right: 3rem;
+}
+
+input[type="date"]::-webkit-calendar-picker-indicator {
+  position: absolute;
+  right: 1rem;
+  color: #a855f7;
+  cursor: pointer;
+  font-size: 1.1rem;
+}
+
+/* Read-only input styling */
+input[readonly] {
+  background-color: #f9fafb;
+  color: #374151;
+  cursor: not-allowed;
+}
+
+input[readonly]:focus {
+  box-shadow: none;
+  border-color: #d1d5db;
+}
+
+/* Enhanced select styling */
+.form-select {
+  background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3e%3cpath fill='none' stroke='%23a855f7' stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='m2 5 6 6 6-6'/%3e%3c/svg%3e");
+}
+
+/* Textarea enhancement */
+.form-control[rows] {
+  resize: vertical;
+  min-height: 100px;
+}
+
+/* Animations */
+@keyframes slideIn {
+  from {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Responsive design */
+@media (max-width: 768px) {
+  .week-display {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 0.25rem;
+  }
+  
+  .week-label {
+    text-align: center;
+    font-size: 0.8rem;
+  }
+  
+  .previous-pregnancy-section,
+  .conception-info,
+  .pregnancy-journey-info {
+    padding: 1rem;
+    margin: 1.5rem 0;
+  }
+  
+  .previous-title,
+  .conception-title,
+  .journey-header {
+    font-size: 1rem;
+  }
+}
