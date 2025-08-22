@@ -1,10 +1,10 @@
 import React from 'react';
 import { Heart, Calendar, Baby, Sparkles } from 'lucide-react';
 
-const WelcomeBanner = ({ name = "User", week = 28, dueDate = new Date('2025-12-15') }) => {
+const WelcomeBanner = ({ name = "Samanta", week = 28, dueDate = new Date('2025-12-30') }) => {
   const formatDate = (date) => {
     if (!date || !(date instanceof Date)) {
-      return "December 15, 2024"; // fallback
+      return "December 30, 2024"; // fallback
     }
     return date.toLocaleDateString('en-US', { 
       month: 'long', 

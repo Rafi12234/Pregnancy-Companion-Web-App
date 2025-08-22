@@ -1,77 +1,76 @@
-import React, { useState } from 'react';
-import { useNavigate } from 'react-router-dom'; // For navigation
-import './Sidebar.css';
+import React, { useState } from "react";
+import { useNavigate } from "react-router-dom";
+import "./Sidebar.css";
+import listIcon from "../../assets/list.png";
 
-const Sidebar = ({ isCollapsed, setIsCollapsed, currentPage = 'dashboard' }) => {
+const Sidebar = ({ currentPage = "dashboard" }) => {
+  const [isCollapsed, setIsCollapsed] = useState(false);
   const [activeMenu, setActiveMenu] = useState(currentPage);
-  const navigate = useNavigate(); // Hook for navigation
+  const navigate = useNavigate();
 
   const menuItems = [
     {
-      id: 'dashboard',
-      label: 'Dashboard',
-      icon: 'fas fa-home',
-      path: '/dashboard'
+      id: "dashboard",
+      label: "Dashboard",
+      icon: "fas fa-home",
+      path: "/dashboard",
     },
     {
-      id: 'profile',
-      label: 'Profile',
-      icon: 'fas fa-user',
-      path: '/profile'
+      id: "profile",
+      label: "Profile",
+      icon: "fas fa-user",
+      path: "/profile",
     },
     {
-      id: 'pregnancy-progress',
-      label: 'Pregnancy Progress',
-      icon: 'fas fa-baby',
-      path: '/pregnancy-progress'
+      id: "pregnancy-progress",
+      label: "Pregnancy Progress",
+      icon: "fas fa-baby",
+      path: "/pregnancy-progress",
     },
     {
-      id: 'appointments',
-      label: 'Appointments',
-      icon: 'fas fa-calendar-alt',
-      path: '/appointments',
-      badge: '2'
+      id: "appointments",
+      label: "Appointments",
+      icon: "fas fa-calendar-alt",
+      path: "/appointments",
+      badge: "2",
     },
     {
-      id: 'health',
-      label: 'Health',
-      icon: 'fas fa-heartbeat',
-      path: '/health'
+      id: "health",
+      label: "Health",
+      icon: "fas fa-heartbeat",
+      path: "/health",
     },
     {
-      id: 'diet-symptom-logs',
-      label: 'Diet & Symptom Logs',
-      icon: 'fas fa-clipboard-list',
-      path: '/diet-symptom-logs'
+      id: "diet-symptom-logs",
+      label: "Diet & Symptom Logs",
+      icon: "fas fa-clipboard-list",
+      path: "/diet-symptom-logs",
     },
     {
-      id: 'community',
-      label: 'Community',
-      icon: 'fas fa-users',
-      path: '/community',
-      badge: '5'
+      id: "community",
+      label: "Community",
+      icon: "fas fa-users",
+      path: "/community",
+      badge: "5",
     },
     {
-      id: 'settings',
-      label: 'Settings',
-      icon: 'fas fa-cog',
-      path: '/settings'
-    }
+      id: "settings",
+      label: "Settings",
+      icon: "fas fa-cog",
+      path: "/settings",
+    },
   ];
 
   const handleMenuClick = (menuId, path) => {
     setActiveMenu(menuId);
-    navigate(path); // Navigate to the page
+    navigate(path);
   };
 
   const handleLogout = () => {
-    if (window.confirm('Are you sure you want to logout?')) {
-      // Clear user data from localStorage/sessionStorage if any
-      localStorage.removeItem('userToken');
-      localStorage.removeItem('userData');
-      
-      // Navigate to login page
-      navigate('/login');
+    if (window.confirm("Are you sure you want to logout?")) {
+      localStorage.removeItem("userToken");
+      localStorage.removeItem("userData");
+      navigate("/login");
     }
   };
 
@@ -81,12 +80,21 @@ const Sidebar = ({ isCollapsed, setIsCollapsed, currentPage = 'dashboard' }) => 
 
   return (
     <>
-      {/* Sidebar */}
-      <div className={`sidebar ${isCollapsed ? 'collapsed' : ''}`}>
+      <div className={`sidebar ${isCollapsed ? "collapsed" : ""}`}>
+        {/* Collapse Button at Top */}
+        <div className="sidebar-top-controls">
+          <button
+            className="collapse-top-btn"
+            onClick={toggleSidebar}
+            aria-label={isCollapsed ? "Expand sidebar" : "Collapse sidebar"}
+            style={{ backgroundImage: `url(${listIcon})` }}
+          ></button>
+        </div>
+
         {/* Sidebar Header */}
         <div className="sidebar-header">
           <div className="pregnancy-info">
-            {!isCollapsed && (
+            {!isCollapsed ? (
               <>
                 <div className="week-counter">
                   <div className="week-number">24</div>
@@ -97,8 +105,7 @@ const Sidebar = ({ isCollapsed, setIsCollapsed, currentPage = 'dashboard' }) => 
                   <p className="due-date">Due: March 15, 2024</p>
                 </div>
               </>
-            )}
-            {isCollapsed && (
+            ) : (
               <div className="week-counter-collapsed">
                 <div className="week-number-small">24W</div>
               </div>
@@ -113,8 +120,9 @@ const Sidebar = ({ isCollapsed, setIsCollapsed, currentPage = 'dashboard' }) => 
               <li key={item.id} className="nav-item">
                 <a
                   href={item.path}
-                  className={`nav-link ${activeMenu === item.id ? 'active' : ''}`}
-                  title={isCollapsed ? item.label : ''}
+                  className={`nav-link ${
+                    activeMenu === item.id ? "active" : ""
+                  }`}
                   onClick={(e) => {
                     e.preventDefault();
                     handleMenuClick(item.id, item.path);
@@ -132,13 +140,12 @@ const Sidebar = ({ isCollapsed, setIsCollapsed, currentPage = 'dashboard' }) => 
                 </a>
               </li>
             ))}
-            
-            {/* Logout - Separate from main menu */}
+
+            {/* Logout */}
             <li className="nav-item logout-item">
               <a
                 href="#"
                 className="nav-link logout-link"
-                title={isCollapsed ? 'Logout' : ''}
                 onClick={(e) => {
                   e.preventDefault();
                   handleLogout();
@@ -150,67 +157,7 @@ const Sidebar = ({ isCollapsed, setIsCollapsed, currentPage = 'dashboard' }) => 
             </li>
           </ul>
         </nav>
-
-        {/* Progress Card
-        {!isCollapsed && (
-          <div className="progress-card">
-            <h6 className="progress-title">
-              <i className="fas fa-chart-line me-2"></i>
-              Your Journey
-            </h6>
-            <div className="progress-item">
-              <div className="progress-info">
-                <span>Weight Gained</span>
-                <span className="progress-value">12 lbs</span>
-              </div>
-              <div className="progress-bar-container">
-                <div className="progress-bar" style={{width: '60%'}}></div>
-              </div>
-            </div>
-            <div className="progress-item">
-              <div className="progress-info">
-                <span>Appointments</span>
-                <span className="progress-value">8/12</span>
-              </div>
-              <div className="progress-bar-container">
-                <div className="progress-bar" style={{width: '67%'}}></div>
-              </div>
-            </div>
-          </div>
-        )} */}
-
-        {/* Quick Actions
-        {!isCollapsed && (
-          <div className="quick-actions">
-            <h6 className="quick-actions-title">Quick Actions</h6>
-            <div className="action-buttons">
-              <button className="action-btn">
-                <i className="fas fa-plus"></i>
-                Log Symptom
-              </button>
-              <button className="action-btn">
-                <i className="fas fa-calendar-plus"></i>
-                Book Appointment
-              </button>
-            </div>
-          </div>
-        )} */}
-
-        {/* Collapse Toggle */}
-        <div className="sidebar-footer">
-          <button className="collapse-btn" onClick={toggleSidebar}>
-            <i className={`fas ${isCollapsed ? 'fa-chevron-right' : 'fa-chevron-left'}`}></i>
-          </button>
-        </div>
       </div>
-
-      {/* Mobile Overlay */}
-      {!isCollapsed && (
-        <div 
-          className="sidebar-overlay d-lg-none" 
-          onClick={() => setIsCollapsed(true)}
-        ></div>
-      )}
     </>
   );
 };
