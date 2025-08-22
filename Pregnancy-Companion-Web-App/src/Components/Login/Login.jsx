@@ -5,13 +5,15 @@ import InputField from "./InputField";
 import AnimatedBackground from "./AnimatedBackground";
 import LoadingButton from "./LoadingButton";
 import SuccessNotification from "./SuccessNotification";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom"; // ✅ import useNavigate
 
 const Login = () => {
   const [formData, setFormData] = useState({ emailOrPhone: "", password: "" });
   const [isLoading, setIsLoading] = useState(false);
   const [showSuccess, setShowSuccess] = useState(false);
   const [mounted, setMounted] = useState(false);
+
+  const navigate = useNavigate(); // ✅ hook for navigation
 
   useEffect(() => {
     setMounted(true);
@@ -24,32 +26,35 @@ const Login = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     setIsLoading(true);
-    
+
     // Simulate API call
     setTimeout(() => {
       setIsLoading(false);
       setShowSuccess(true);
+
+      // ✅ navigate to dashboard after short delay
+      setTimeout(() => {
+        navigate("/dashboard");
+      }, 1500); // wait 1.5s to show success message
     }, 2000);
   };
 
   return (
     <div className="login-container">
       <AnimatedBackground />
-      <SuccessNotification 
-        show={showSuccess} 
-        onClose={() => setShowSuccess(false)} 
+      <SuccessNotification
+        show={showSuccess}
+        onClose={() => setShowSuccess(false)}
       />
-      
-      <div className={`login-wrapper ${mounted ? 'mounted' : ''}`}>
+
+      <div className={`login-wrapper ${mounted ? "mounted" : ""}`}>
         <div className="login-card">
           {/* Header */}
           <div className="login-header">
             <div className="login-icon">
               <Heart className="heart-icon" />
             </div>
-            <h2 className="login-title">
-              Welcome Back,Mother! 👩‍🍼
-            </h2>
+            <h2 className="login-title">Welcome Back, Mother! 👩‍🍼</h2>
             <p className="login-subtitle">Sign in to continue your journey</p>
           </div>
 
@@ -63,7 +68,7 @@ const Login = () => {
               onChange={handleChange}
               iconType="mail"
             />
-            
+
             <InputField
               type="password"
               placeholder="Password"
@@ -83,10 +88,7 @@ const Login = () => {
               </a>
             </div>
 
-            <LoadingButton 
-              isLoading={isLoading} 
-              onClick={handleSubmit}
-            >
+            <LoadingButton isLoading={isLoading} onClick={handleSubmit}>
               Sign In
             </LoadingButton>
           </div>
@@ -108,12 +110,11 @@ const Login = () => {
 
           {/* Footer */}
           <p className="login-footer">
-  Don’t have an account?{" "}
-  <Link to="/signup" className="signup-link">
-    Sign Up
-  </Link>
-</p>
-
+            Don’t have an account?{" "}
+            <Link to="/signup" className="signup-link">
+              Sign Up
+            </Link>
+          </p>
         </div>
 
         {/* Floating Action Hint */}
