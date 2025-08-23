@@ -1,0 +1,128 @@
+
+/* General */
+body, html {
+  margin: 0;
+  padding: 0;
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+/* Header */
+.landing-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 20px 50px;
+  background-color: #ff69b4; /* pink */
+  color: white;
+}
+
+.landing-header h1 {
+  margin: 0;
+}
+
+.landing-header nav ul {
+  list-style: none;
+  display: flex;
+  gap: 20px;
+  margin: 0;
+  padding: 0;
+}
+
+.landing-header nav a {
+  color: white;
+  text-decoration: none;
+  font-weight: bold;
+}
+
+.landing-header nav a:hover {
+  text-decoration: underline;
+}
+
+/* Hero Section */
+.hero {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  flex-wrap: wrap;
+  padding: 60px 50px;
+  background-color: #ffe4ec; /* light pink */
+}
+
+.hero-text {
+  max-width: 500px;
+  margin: 10px;
+}
+
+.hero-text h2 {
+  font-size: 2rem;
+  margin-bottom: 20px;
+}
+
+.hero-text p {
+  font-size: 1.2rem;
+  margin-bottom: 20px;
+}
+
+.cta-button {
+  background-color: #ff69b4; /* pink */
+  color: white;
+  padding: 12px 25px;
+  font-size: 1rem;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+}
+
+.cta-button:hover {
+  background-color: #e0559c; /* darker pink */
+}
+
+/* Hero Image */
+.hero-image img {
+  max-width: 400px;
+  border-radius: 10px;
+  margin: 10px;
+}
+
+/* Features Section */
+.features {
+  display: flex;
+  justify-content: space-around;
+  padding: 60px 50px;
+  background-color: #fff;
+  flex-wrap: wrap;
+  gap: 30px;
+}
+
+.feature-card {
+  background-color: #f8f8f8;
+  padding: 30px;
+  border-radius: 10px;
+  max-width: 250px;
+  text-align: center;
+  box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+}
+
+.feature-card h3 {
+  color: #ff69b4; /* pink */
+  margin-bottom: 15px;
+}
+
+/* Footer */
+.landing-footer {
+  text-align: center;
+  padding: 30px 50px;
+  background-color: #333;
+  color: white;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .hero {
+    flex-direction: column;
+  }
+  .features {
+    flex-direction: column;
+    align-items: center;
+  }
+}
