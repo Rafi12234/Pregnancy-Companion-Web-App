@@ -30,7 +30,7 @@ const Sidebar = ({ currentPage = "dashboard" }) => {
       id: "appointments",
       label: "Appointments",
       icon: "fas fa-calendar-alt",
-      path: "/appointments",
+      path: "/appointment",
       badge: "2",
     },
     {
