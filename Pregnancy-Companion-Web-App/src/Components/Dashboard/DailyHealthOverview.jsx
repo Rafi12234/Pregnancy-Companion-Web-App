@@ -1,140 +1,399 @@
-import React from 'react';
-import { LineChart, Line, XAxis, YAxis, ResponsiveContainer, Area, AreaChart } from 'recharts';
-import { Activity, Heart, Thermometer, TrendingUp } from 'lucide-react';
+import React, { useState, useEffect } from 'react';
+import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer, AreaChart, Area } from 'recharts';
+import { Activity, Heart, TrendingUp, Plus, Calendar, Download, Bell } from 'lucide-react';
 import './DailyHealthOverview.css';
 
 const DailyHealthOverview = () => {
-  const weeklyData = [
-    { day: 'Mon', weight: 68.2, bloodPressure: 118, heartRate: 75 },
-    { day: 'Tue', weight: 68.4, bloodPressure: 120, heartRate: 78 },
-    { day: 'Wed', weight: 68.3, bloodPressure: 115, heartRate: 72 },
-    { day: 'Thu', weight: 68.5, bloodPressure: 122, heartRate: 76 },
-    { day: 'Fri', weight: 68.7, bloodPressure: 119, heartRate: 74 },
-    { day: 'Sat', weight: 68.6, bloodPressure: 117, heartRate: 73 },
-    { day: 'Sun', weight: 68.8, bloodPressure: 121, heartRate: 77 }
-  ];
+  const [activeMetric, setActiveMetric] = useState('weight');
+  const [showInputForm, setShowInputForm] = useState(false);
+  const [healthData, setHealthData] = useState([]);
+  const [newEntry, setNewEntry] = useState({
+    date: new Date().toISOString().split('T')[0],
+    weight: '',
+    systolic: '',
+    diastolic: '',
+    heartRate: ''
+  });
 
-  const todayStats = [
-    {
-      icon: Activity,
-      title: 'Blood Pressure',
-      value: '121/78',
-      unit: 'mmHg',
-      status: 'normal',
-      change: '+2%'
-    },
-    {
-      icon: Heart,
-      title: 'Heart Rate',
-      value: '77',
-      unit: 'bpm',
-      status: 'good',
-      change: '+4%'
-    },
-    {
-      icon: Thermometer,
-      title: 'Weight',
-      value: '68.8',
-      unit: 'kg',
-      status: 'normal',
-      change: '+0.1kg'
+  // Load data from localStorage on component mount
+  useEffect(() => {
+    const savedData = localStorage.getItem('healthData');
+    if (savedData) {
+      setHealthData(JSON.parse(savedData));
+    } else {
+      // Initialize with some sample data if none exists
+      const sampleData = [
+        { date: '2023-10-01', weight: 68.2, systolic: 118, diastolic: 75, heartRate: 75 },
+        { date: '2023-10-03', weight: 68.4, systolic: 120, diastolic: 78, heartRate: 78 },
+        { date: '2023-10-05', weight: 68.3, systolic: 115, diastolic: 72, heartRate: 72 },
+        { date: '2023-10-07', weight: 68.5, systolic: 122, diastolic: 80, heartRate: 76 },
+        { date: '2023-10-09', weight: 68.7, systolic: 119, diastolic: 77, heartRate: 74 },
+        { date: '2023-10-11', weight: 68.6, systolic: 117, diastolic: 76, heartRate: 73 },
+        { date: '2023-10-13', weight: 68.8, systolic: 121, diastolic: 78, heartRate: 77 }
+      ];
+      setHealthData(sampleData);
+      localStorage.setItem('healthData', JSON.stringify(sampleData));
     }
-  ];
+  }, []);
 
-  const getStatusColor = (status) => {
-    switch (status) {
-      case 'good': return '#10b981';
-      case 'normal': return '#667eea';
-      case 'warning': return '#f59e0b';
-      default: return '#6b7280';
+  // Save data to localStorage whenever it changes
+  useEffect(() => {
+    if (healthData.length > 0) {
+      localStorage.setItem('healthData', JSON.stringify(healthData));
     }
+  }, [healthData]);
+
+  const handleInputChange = (e) => {
+    const { name, value } = e.target;
+    setNewEntry({
+      ...newEntry,
+      [name]: value
+    });
   };
 
+  const handleSubmit = (e) => {
+    e.preventDefault();
+    const entry = {
+      ...newEntry,
+      weight: parseFloat(newEntry.weight),
+      systolic: parseInt(newEntry.systolic),
+      diastolic: parseInt(newEntry.diastolic),
+      heartRate: parseInt(newEntry.heartRate)
+    };
+    
+    const updatedData = [...healthData, entry].sort((a, b) => 
+      new Date(a.date) - new Date(b.date)
+    );
+    
+    setHealthData(updatedData);
+    setNewEntry({
+      date: new Date().toISOString().split('T')[0],
+      weight: '',
+      systolic: '',
+      diastolic: '',
+      heartRate: ''
+    });
+    setShowInputForm(false);
+  };
+
+  const getStatusColor = (type, value) => {
+    if (type === 'bp') {
+      if (value.systolic > 140 || value.diastolic > 90) return '#ef4444'; // High - red
+      if (value.systolic < 90 || value.diastolic < 60) return '#f59e0b'; // Low - amber
+      return '#10b981'; // Normal - green
+    }
+    
+    if (type === 'hr') {
+      if (value > 100) return '#ef4444'; // High - red
+      if (value < 60) return '#f59e0b'; // Low - amber
+      return '#10b981'; // Normal - green
+    }
+    
+    return '#3b82f6'; // Default blue for weight
+  };
+
+  const getLatestReading = () => {
+    if (healthData.length === 0) return null;
+    const sortedData = [...healthData].sort((a, b) => new Date(b.date) - new Date(a.date));
+    return sortedData[0];
+  };
+
+  const latestReading = getLatestReading();
+
   return (
-    <div className="health-overview-card">
-      <div className="card-header">
-        <div className="header-left">
-          <Activity className="header-icon" size={24} />
+    <div className="health-overview-container">
+      <div className="health-header">
+        <div className="header-content">
+          <Activity className="header-icon" size={32} />
           <div>
-            <h3>Daily Health Overview</h3>
-            <p>Your vitals tracking</p>
+            <h1>Pregnancy Health Tracker</h1>
+            <p>Monitor your health and baby's development</p>
           </div>
         </div>
-        <div className="trend-indicator">
-          <TrendingUp size={16} />
-          <span>Stable</span>
-        </div>
+        <button 
+          className="primary-btn"
+          onClick={() => setShowInputForm(true)}
+        >
+          <Plus size={18} />
+          New Reading
+        </button>
       </div>
 
-      <div className="stats-grid">
-        {todayStats.map((stat, index) => (
-          <div 
-            key={stat.title} 
-            className="stat-card"
-            style={{ animationDelay: `${0.1 + index * 0.1}s` }}
-          >
-            <div className="stat-icon" style={{ color: getStatusColor(stat.status) }}>
-              <stat.icon size={20} />
-            </div>
-            <div className="stat-content">
+      {latestReading && (
+        <div className="current-stats">
+          <h3>Latest Readings</h3>
+          <div className="stats-grid">
+            <div className="stat-card">
               <div className="stat-header">
-                <span className="stat-title">{stat.title}</span>
-                <span className="stat-change" style={{ color: getStatusColor(stat.status) }}>
-                  {stat.change}
-                </span>
+                <Heart size={20} />
+                <span>Blood Pressure</span>
+              </div>
+              <div 
+                className="stat-value"
+                style={{ color: getStatusColor('bp', latestReading) }}
+              >
+                {latestReading.systolic}/{latestReading.diastolic}
+                <span className="unit">mmHg</span>
+              </div>
+              <div className="stat-date">
+                {new Date(latestReading.date).toLocaleDateString()}
+              </div>
+            </div>
+
+            <div className="stat-card">
+              <div className="stat-header">
+                <Activity size={20} />
+                <span>Heart Rate</span>
+              </div>
+              <div 
+                className="stat-value"
+                style={{ color: getStatusColor('hr', latestReading.heartRate) }}
+              >
+                {latestReading.heartRate}
+                <span className="unit">bpm</span>
+              </div>
+              <div className="stat-date">
+                {new Date(latestReading.date).toLocaleDateString()}
+              </div>
+            </div>
+
+            <div className="stat-card">
+              <div className="stat-header">
+                <TrendingUp size={20} />
+                <span>Weight</span>
               </div>
               <div className="stat-value">
-                <span className="value">{stat.value}</span>
-                <span className="unit">{stat.unit}</span>
+                {latestReading.weight}
+                <span className="unit">kg</span>
+              </div>
+              <div className="stat-date">
+                {new Date(latestReading.date).toLocaleDateString()}
               </div>
             </div>
           </div>
-        ))}
-      </div>
+        </div>
+      )}
 
       <div className="chart-section">
         <div className="chart-header">
-          <h4>Weekly Trends</h4>
-          <select className="chart-selector">
-            <option value="weight">Weight</option>
-            <option value="bp">Blood Pressure</option>
-            <option value="hr">Heart Rate</option>
-          </select>
+          <h3>Health Trends</h3>
+          <div className="chart-controls">
+            <select 
+              value={activeMetric} 
+              onChange={(e) => setActiveMetric(e.target.value)}
+              className="metric-selector"
+            >
+              <option value="weight">Weight</option>
+              <option value="bp">Blood Pressure</option>
+              <option value="hr">Heart Rate</option>
+            </select>
+            <button className="icon-btn">
+              <Download size={18} />
+            </button>
+          </div>
         </div>
+
         <div className="chart-container">
-          <ResponsiveContainer width="100%" height={120}>
-            <AreaChart data={weeklyData}>
-              <defs>
-                <linearGradient id="healthGradient" x1="0" y1="0" x2="0" y2="1">
-                  <stop offset="5%" stopColor="#667eea" stopOpacity={0.3}/>
-                  <stop offset="95%" stopColor="#667eea" stopOpacity={0}/>
-                </linearGradient>
-              </defs>
-              <XAxis 
-                dataKey="day" 
-                axisLine={false}
-                tickLine={false}
-                tick={{ fontSize: 12, fill: '#9ca3af' }}
-              />
-              <YAxis hide />
-              <Area
-                type="monotone"
-                dataKey="weight"
-                stroke="#667eea"
-                strokeWidth={3}
-                fill="url(#healthGradient)"
-                dot={{ fill: '#667eea', strokeWidth: 2, r: 4 }}
-                activeDot={{ r: 6, stroke: '#667eea', strokeWidth: 2 }}
-              />
-            </AreaChart>
-          </ResponsiveContainer>
+          {activeMetric === 'weight' && (
+            <ResponsiveContainer width="100%" height={300}>
+              <AreaChart data={healthData}>
+                <defs>
+                  <linearGradient id="weightGradient" x1="0" y1="0" x2="0" y2="1">
+                    <stop offset="5%" stopColor="#8b5cf6" stopOpacity={0.3}/>
+                    <stop offset="95%" stopColor="#8b5cf6" stopOpacity={0}/>
+                  </linearGradient>
+                </defs>
+                <CartesianGrid strokeDasharray="3 3" vertical={false} />
+                <XAxis 
+                  dataKey="date" 
+                  tickFormatter={(date) => new Date(date).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}
+                />
+                <YAxis />
+                <Tooltip 
+                  formatter={(value) => [`${value} kg`, "Weight"]}
+                  labelFormatter={(date) => `Date: ${new Date(date).toLocaleDateString()}`}
+                />
+                <Area 
+                  type="monotone" 
+                  dataKey="weight" 
+                  stroke="#8b5cf6" 
+                  fill="url(#weightGradient)" 
+                  strokeWidth={3}
+                  activeDot={{ r: 6, fill: '#8b5cf6' }}
+                />
+              </AreaChart>
+            </ResponsiveContainer>
+          )}
+
+          {activeMetric === 'bp' && (
+            <ResponsiveContainer width="100%" height={300}>
+              <LineChart data={healthData}>
+                <CartesianGrid strokeDasharray="3 3" vertical={false} />
+                <XAxis 
+                  dataKey="date" 
+                  tickFormatter={(date) => new Date(date).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}
+                />
+                <YAxis />
+                <Tooltip 
+                  formatter={(value, name) => {
+                    if (name === 'systolic') return [value, 'Systolic'];
+                    if (name === 'diastolic') return [value, 'Diastolic'];
+                    return [value, name];
+                  }}
+                  labelFormatter={(date) => `Date: ${new Date(date).toLocaleDateString()}`}
+                />
+                <Legend />
+                <Line 
+                  type="monotone" 
+                  dataKey="systolic" 
+                  stroke="#ef4444" 
+                  strokeWidth={3}
+                  activeDot={{ r: 6, fill: '#ef4444' }}
+                  name="Systolic"
+                />
+                <Line 
+                  type="monotone" 
+                  dataKey="diastolic" 
+                  stroke="#3b82f6" 
+                  strokeWidth={3}
+                  activeDot={{ r: 6, fill: '#3b82f6' }}
+                  name="Diastolic"
+                />
+              </LineChart>
+            </ResponsiveContainer>
+          )}
+
+          {activeMetric === 'hr' && (
+            <ResponsiveContainer width="100%" height={300}>
+              <AreaChart data={healthData}>
+                <defs>
+                  <linearGradient id="hrGradient" x1="0" y1="0" x2="0" y2="1">
+                    <stop offset="5%" stopColor="#10b981" stopOpacity={0.3}/>
+                    <stop offset="95%" stopColor="#10b981" stopOpacity={0}/>
+                  </linearGradient>
+                </defs>
+                <CartesianGrid strokeDasharray="3 3" vertical={false} />
+                <XAxis 
+                  dataKey="date" 
+                  tickFormatter={(date) => new Date(date).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}
+                />
+                <YAxis />
+                <Tooltip 
+                  formatter={(value) => [`${value} bpm`, "Heart Rate"]}
+                  labelFormatter={(date) => `Date: ${new Date(date).toLocaleDateString()}`}
+                />
+                <Area 
+                  type="monotone" 
+                  dataKey="heartRate" 
+                  stroke="#10b981" 
+                  fill="url(#hrGradient)" 
+                  strokeWidth={3}
+                  activeDot={{ r: 6, fill: '#10b981' }}
+                />
+              </AreaChart>
+            </ResponsiveContainer>
+          )}
         </div>
       </div>
 
-      <div className="health-tip">
-        <div className="tip-icon">💡</div>
-        <p>Your vitals are looking great! Keep up the healthy routine.</p>
-      </div>
+      {showInputForm && (
+        <div className="modal-overlay">
+          <div className="input-modal">
+            <div className="modal-header">
+              <h3>Add Health Reading</h3>
+              <button 
+                className="close-btn"
+                onClick={() => setShowInputForm(false)}
+              >
+                &times;
+              </button>
+            </div>
+            
+            <form onSubmit={handleSubmit} className="health-form">
+              <div className="form-group">
+                <label>Date</label>
+                <input
+                  type="date"
+                  name="date"
+                  value={newEntry.date}
+                  onChange={handleInputChange}
+                  required
+                />
+              </div>
+
+              <div className="form-group">
+                <label>Weight (kg)</label>
+                <input
+                  type="number"
+                  name="weight"
+                  value={newEntry.weight}
+                  onChange={handleInputChange}
+                  step="0.1"
+                  min="0"
+                  placeholder="Enter your weight"
+                  required
+                />
+              </div>
+
+              <div className="form-row">
+                <div className="form-group">
+                  <label>Systolic BP</label>
+                  <input
+                    type="number"
+                    name="systolic"
+                    value={newEntry.systolic}
+                    onChange={handleInputChange}
+                    min="0"
+                    placeholder="Systolic"
+                    required
+                  />
+                </div>
+                <div className="form-group">
+                  <label>Diastolic BP</label>
+                  <input
+                    type="number"
+                    name="diastolic"
+                    value={newEntry.diastolic}
+                    onChange={handleInputChange}
+                    min="0"
+                    placeholder="Diastolic"
+                    required
+                  />
+                </div>
+              </div>
+
+              <div className="form-group">
+                <label>Heart Rate (bpm)</label>
+                <input
+                  type="number"
+                  name="heartRate"
+                  value={newEntry.heartRate}
+                  onChange={handleInputChange}
+                  min="0"
+                  placeholder="Enter heart rate"
+                  required
+                />
+              </div>
+
+              <div className="form-actions">
+                <button 
+                  type="button"
+                  className="secondary-btn"
+                  onClick={() => setShowInputForm(false)}
+                >
+                  Cancel
+                </button>
+                <button 
+                  type="submit"
+                  className="primary-btn"
+                >
+                  Save Reading
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
     </div>
   );
 };
