@@ -127,10 +127,6 @@ const LandingPage = () => {
                   </svg>
                 </div>
               </button>
-              <button className="secondary-button">
-                <span className="play-icon">▶</span>
-                Watch Demo
-              </button>
             </div>
           </div>
           
