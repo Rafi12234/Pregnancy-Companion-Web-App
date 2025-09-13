@@ -46,7 +46,7 @@ const LandingPage = () => {
   };
 
   const handleCreateAccount = () => {
-    navigate("/Signup");
+    navigate("/SignUp");
   };
 
   const scrollToSection = (id) => {
