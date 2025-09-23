@@ -21,7 +21,7 @@ const Login = () => {
 
   const navigate = useNavigate();
 
-  // Mount animations + restore remembered email
+  // Mount animations + restore remembered email (this is okay; not auth history)
   useEffect(() => {
     setMounted(true);
     const rememberedEmail = localStorage.getItem("rememberedEmail");
@@ -31,7 +31,7 @@ const Login = () => {
     }
   }, []);
 
-  // Derived validation
+  // Validation
   const currentErrors = useMemo(() => {
     const e = {};
     if (!EMAIL_RE.test(formData.email)) e.email = "Enter a valid email address.";
@@ -42,7 +42,7 @@ const Login = () => {
 
   const isValid = Object.keys(currentErrors).length === 0;
 
-  // Sync visible errors when fields touched or form changes
+  // Show errors for touched fields
   useEffect(() => {
     const shown = {};
     for (const k of Object.keys(touched)) {
@@ -52,14 +52,13 @@ const Login = () => {
   }, [currentErrors, touched]);
 
   function handleChange(e) {
-    const { name, value, type, checked } = e.target;
+    const { name, value, checked } = e.target;
     if (name === "remember") {
       setRemember(checked);
       return;
     }
     setFormData((f) => ({ ...f, [name]: value }));
   }
-
   function handleBlur(e) {
     const { name } = e.target;
     setTouched((t) => ({ ...t, [name]: true }));
@@ -71,7 +70,6 @@ const Login = () => {
     setTouched({ email: true, password: true });
 
     if (!isValid) {
-      // surface all current errors
       setErrors(currentErrors);
       return;
     }
@@ -81,7 +79,7 @@ const Login = () => {
       const res = await fetch("http://localhost:5000/api/auth/login", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        credentials: "include", // include cookies if your backend sets them
+        credentials: "include", // fine; backend can ignore if not using cookies
         body: JSON.stringify({
           email: formData.email.trim(),
           password: formData.password,
@@ -89,28 +87,24 @@ const Login = () => {
       });
 
       const data = await res.json().catch(() => ({}));
-
       setIsLoading(false);
 
       if (res.ok) {
         setShowSuccess(true);
 
-        // Remember email preference
-        if (remember) {
-          localStorage.setItem("rememberedEmail", formData.email.trim());
-        } else {
-          localStorage.removeItem("rememberedEmail");
-        }
+        // ✅ Only store the token to avoid account history in browser
+        if (data.token) localStorage.setItem("token", data.token);
 
-        // If backend returns a token and you prefer localStorage tokens:
-        // if (data.token) localStorage.setItem("token", data.token);
+        // Keep remembered email ONLY if user checked the box (not auth history)
+        if (remember) localStorage.setItem("rememberedEmail", formData.email.trim());
+        else localStorage.removeItem("rememberedEmail");
 
-        // Navigate after a short success moment
-        setTimeout(() => navigate("/dashboard"), 1200);
+        // Go to dashboard, replace history to prevent Back to Login
+        setTimeout(() => navigate("/dashboard", { replace: true }), 800);
       } else {
         setServerError(data.message || "Login failed. Please try again.");
       }
-    } catch (err) {
+    } catch {
       setIsLoading(false);
       setServerError("Server error. Please try again later.");
     }
@@ -119,21 +113,16 @@ const Login = () => {
   return (
     <div className="login-container">
       <AnimatedBackground />
-
       <SuccessNotification show={showSuccess} onClose={() => setShowSuccess(false)} />
 
       <div className={`login-wrapper ${mounted ? "mounted" : ""}`}>
         <div className="login-card">
-          {/* Header */}
           <div className="login-header">
-            <div className="login-icon">
-              <Heart className="heart-icon" />
-            </div>
+            <div className="login-icon"><Heart className="heart-icon" /></div>
             <h2 className="login-title">Welcome Back, Mother! 👩‍🍼</h2>
             <p className="login-subtitle">Sign in to continue your journey</p>
           </div>
 
-          {/* Form */}
           <form className="login-form" onSubmit={handleSubmit} noValidate>
             <InputField
               type="email"
@@ -176,12 +165,9 @@ const Login = () => {
                 />
                 <span>Remember me</span>
               </label>
-              <a href="#" className="forgot-password">
-                Forgot password?
-              </a>
+              <a href="#" className="forgot-password">Forgot password?</a>
             </div>
 
-            {/* Server error banner */}
             {serverError && <div className="error" style={{ marginBottom: 10 }}>{serverError}</div>}
 
             <LoadingButton isLoading={isLoading} type="submit" disabled={!isValid || isLoading}>
@@ -189,14 +175,12 @@ const Login = () => {
             </LoadingButton>
           </form>
 
-          {/* Divider */}
           <div className="divider">
             <div className="divider-line"></div>
             <span className="divider-text">or</span>
             <div className="divider-line"></div>
           </div>
 
-          {/* Social Login (placeholder) */}
           <div className="social-login">
             <button className="social-btn" type="button">
               <div className="google-icon"></div>
@@ -204,16 +188,12 @@ const Login = () => {
             </button>
           </div>
 
-          {/* Footer */}
           <p className="login-footer">
             Don’t have an account?{" "}
-            <Link to="/signup" className="signup-link">
-              Sign Up
-            </Link>
+            <Link to="/signup" className="signup-link">Sign Up</Link>
           </p>
         </div>
 
-        {/* Floating Action Hint */}
         <div className="love-message">
           <p>
             <Heart className="heart-small" />

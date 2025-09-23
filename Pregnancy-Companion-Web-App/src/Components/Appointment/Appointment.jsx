@@ -1,8 +1,16 @@
 import React, { useState, useEffect } from 'react';
-import { Clock, Plus, Search, CheckCircle, XCircle, Edit3, Trash2, Bell, FileText, List, BarChart3, Heart, Baby } from 'lucide-react';
+import { Clock, Plus, Search, CheckCircle, XCircle, Edit3, Trash2, FileText, List, BarChart3, Heart, Baby } from 'lucide-react';
 import './Appointment.css';
 import NavBar from '../NavBar/NavBar';
 import Sidebar from '../Sidebar/Sidebar';
+
+// ✅ ADDED: API helpers
+const API_BASE = import.meta?.env?.VITE_API_BASE || 'http://localhost:5000';
+const APPT_URL = `${API_BASE}/api/appointments`;
+const authHeader = () => {
+  const token = localStorage.getItem('token');
+  return token ? { Authorization: 'Bearer ' + token, 'Content-Type': 'application/json' } : { 'Content-Type': 'application/json' };
+};
 
 const Appointment = () => {
   const [activeView, setActiveView] = useState('list');
@@ -12,41 +20,9 @@ const Appointment = () => {
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedDate, setSelectedDate] = useState(new Date());
   const [isSidebarOpen, setIsSidebarOpen] = useState(true);
-  const [appointments, setAppointments] = useState([
-    {
-      id: 1,
-      title: "Prenatal Checkup",
-      date: "2025-09-15",
-      time: "10:00 AM",
-      type: "prenatal",
-      status: "upcoming",
-      notes: "Remember to ask about nutrition plan",
-      checklist: ["Bring ultrasound reports", "Insurance card", "Previous test results"],
-      completed: false
-    },
-    {
-      id: 2,
-      title: "Baby Vaccination",
-      date: "2025-09-20",
-      time: "2:30 PM",
-      type: "baby",
-      status: "upcoming",
-      notes: "Flu shot scheduled",
-      checklist: ["Bring vaccination card", "Insurance information"],
-      completed: false
-    },
-    {
-      id: 3,
-      title: "Prenatal Yoga",
-      date: "2025-08-25",
-      time: "6:00 PM",
-      type: "wellness",
-      status: "past",
-      notes: "Prenatal yoga session",
-      checklist: ["Yoga mat", "Water bottle"],
-      completed: true
-    }
-  ]);
+
+  // ✅ CHANGED: start empty; we’ll load from backend
+  const [appointments, setAppointments] = useState([]);
 
   const [newAppointment, setNewAppointment] = useState({
     title: '',
@@ -74,21 +50,56 @@ const Appointment = () => {
     "Postpartum Checkup"
   ];
 
-  const handleQuickAdd = () => {
+  // ✅ ADDED: load from backend
+  useEffect(() => {
+    (async () => {
+      try {
+        const res = await fetch(APPT_URL, { headers: authHeader() });
+        if (!res.ok) return; // optionally show toast
+        const json = await res.json();
+        const rows = (json?.data || []).map(d => ({ ...d, id: d._id })); // normalize id
+        setAppointments(rows);
+      } catch (e) {
+        console.error('Failed to load appointments', e);
+      }
+    })();
+  }, []);
+
+  // ✅ MODIFIED: also POST to backend
+  const handleQuickAdd = async () => {
     if (newAppointment.title && newAppointment.date && newAppointment.time) {
-      const appointment = {
-        id: Date.now(),
-        ...newAppointment,
-        status: new Date(newAppointment.date) > new Date() ? 'upcoming' : 'past',
-        completed: false,
-        checklist: newAppointment.checklist.filter(item => item.trim() !== '')
+      const payload = {
+        title: newAppointment.title,
+        date: newAppointment.date,
+        time: newAppointment.time,
+        type: newAppointment.type || 'prenatal',
+        notes: newAppointment.notes || '',
+        checklist: (newAppointment.checklist || []).filter(item => (item || '').trim() !== '')
       };
-      setAppointments([...appointments, appointment]);
+
+      try {
+        const res = await fetch(APPT_URL, {
+          method: 'POST',
+          headers: authHeader(),
+          body: JSON.stringify(payload)
+        });
+        if (!res.ok) {
+          alert('Failed to save appointment');
+          return;
+        }
+        const { data } = await res.json();
+        const created = { ...data, id: data._id };
+        setAppointments(prev => [...prev, created]);
+      } catch (e) {
+        console.error('Create failed', e);
+        alert('Network error creating appointment');
+      }
+
       setNewAppointment({
         title: '',
         date: '',
         time: '',
-        type: 'medical',
+        type: 'prenatal',
         notes: '',
         checklist: []
       });
@@ -96,28 +107,68 @@ const Appointment = () => {
     }
   };
 
-  const handleReschedule = (id, newDate, newTime) => {
-    setAppointments(appointments.map(apt => 
-      apt.id === id ? { ...apt, date: newDate, time: newTime } : apt
-    ));
-    setShowReschedule(null);
-  };
-
-  const handleCancel = (id) => {
-    if (window.confirm('Are you sure you want to cancel this appointment?')) {
-      setAppointments(appointments.filter(apt => apt.id !== id));
+  // ✅ MODIFIED: PUT to backend
+  const handleReschedule = async (id, newDate, newTime) => {
+    try {
+      const res = await fetch(`${APPT_URL}/${id}`, {
+        method: 'PUT',
+        headers: authHeader(),
+        body: JSON.stringify({ date: newDate, time: newTime })
+      });
+      if (!res.ok) {
+        alert('Failed to reschedule');
+        return;
+      }
+      const { data } = await res.json();
+      setAppointments(apts => apts.map(a => (a.id === id ? { ...a, ...data, id: data._id } : a)));
+      setShowReschedule(null);
+    } catch (e) {
+      console.error('Reschedule failed', e);
+      alert('Network error');
     }
   };
 
-  const toggleComplete = (id) => {
-    setAppointments(appointments.map(apt => 
-      apt.id === id ? { ...apt, completed: !apt.completed } : apt
-    ));
+  // ✅ MODIFIED: DELETE in backend
+  const handleCancel = async (id) => {
+    if (!window.confirm('Are you sure you want to cancel this appointment?')) return;
+    try {
+      const res = await fetch(`${APPT_URL}/${id}`, {
+        method: 'DELETE',
+        headers: authHeader()
+      });
+      if (!res.ok) {
+        alert('Failed to delete');
+        return;
+      }
+      setAppointments(apts => apts.filter(a => a.id !== id));
+    } catch (e) {
+      console.error('Delete failed', e);
+      alert('Network error');
+    }
+  };
+
+  // ✅ MODIFIED: PATCH toggle in backend
+  const toggleComplete = async (id) => {
+    try {
+      const res = await fetch(`${APPT_URL}/${id}/toggle`, {
+        method: 'PATCH',
+        headers: authHeader()
+      });
+      if (!res.ok) {
+        alert('Failed to update');
+        return;
+      }
+      const { data } = await res.json();
+      setAppointments(apts => apts.map(a => (a.id === id ? { ...a, ...data, id: data._id } : a)));
+    } catch (e) {
+      console.error('Toggle failed', e);
+      alert('Network error');
+    }
   };
 
   const filteredAppointments = appointments
     .filter(apt => activeTab === 'upcoming' ? apt.status === 'upcoming' : apt.status === 'past')
-    .filter(apt => apt.title.toLowerCase().includes(searchTerm.toLowerCase()));
+    .filter(apt => (apt.title || '').toLowerCase().includes(searchTerm.toLowerCase()));
 
   const completedCount = appointments.filter(apt => apt.completed).length;
   const totalCount = appointments.length;
@@ -256,7 +307,7 @@ const Appointment = () => {
                         </div>
                       )}
 
-                      {appointment.checklist.length > 0 && (
+                      {appointment.checklist?.length > 0 && (
                         <div className="appointment-checklist">
                           <h4>Checklist:</h4>
                           <ul>
@@ -267,6 +318,39 @@ const Appointment = () => {
                               </li>
                             ))}
                           </ul>
+                        </div>
+                      )}
+
+                      {/* Simple inline rescheduler (optional minimal UI) */}
+                      {showReschedule === appointment.id && (
+                        <div className="reschedule-inline">
+                          <div className="form-row">
+                            <input
+                              type="date"
+                              defaultValue={appointment.date}
+                              onChange={(e) => (appointment.__newDate = e.target.value)}
+                            />
+                            <input
+                              type="time"
+                              defaultValue={appointment.time}
+                              onChange={(e) => (appointment.__newTime = e.target.value)}
+                            />
+                          </div>
+                          <div className="reschedule-actions">
+                            <button
+                              className="save-btn"
+                              onClick={() => handleReschedule(
+                                appointment.id,
+                                appointment.__newDate || appointment.date,
+                                appointment.__newTime || appointment.time
+                              )}
+                            >
+                              Save
+                            </button>
+                            <button className="cancel-modal-btn" onClick={() => setShowReschedule(null)}>
+                              Cancel
+                            </button>
+                          </div>
                         </div>
                       )}
                     </div>
@@ -399,7 +483,7 @@ const Appointment = () => {
                             placeholder={`Checklist item ${index + 1}`}
                             value={newAppointment.checklist[index] || ''}
                             onChange={(e) => {
-                              const newChecklist = [...newAppointment.checklist];
+                              const newChecklist = [...(newAppointment.checklist || [])];
                               newChecklist[index] = e.target.value;
                               setNewAppointment({...newAppointment, checklist: newChecklist});
                             }}

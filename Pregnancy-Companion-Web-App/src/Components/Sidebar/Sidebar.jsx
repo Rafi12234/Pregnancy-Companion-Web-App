@@ -58,6 +58,12 @@ const Sidebar = ({ currentPage = "dashboard" }) => {
       icon: "fas fa-cog",
       path: "/settings",
     },
+    {
+      id: "assistant",
+      label: "AI Assistant",
+      icon: "fas fa-robot",
+      path: "/assistant",
+    }
   ];
 
   const handleMenuClick = (menuId, path) => {
@@ -67,9 +73,29 @@ const Sidebar = ({ currentPage = "dashboard" }) => {
 
   const handleLogout = () => {
     if (window.confirm("Are you sure you want to logout?")) {
+      // Remove ALL auth identifiers actually used by the app
+      localStorage.removeItem("token");   // <-- main auth token used by API/guards
+      localStorage.removeItem("userId");  // <-- keeps per-user state separate
+      localStorage.removeItem("email");   // <-- fallback identifier
+
+      // (Optional) remove legacy keys your code was clearing before
       localStorage.removeItem("userToken");
       localStorage.removeItem("userData");
-      navigate("/login");
+
+      try {
+        // Let other tabs know (optional)
+        localStorage.setItem("auth:logout", String(Date.now()));
+      } catch {}
+
+      // Navigate to login and replace history so Back won't return to dashboard
+      navigate("/login", { replace: true });
+
+      // Hard fallback if some mounted component blocks rerender
+      setTimeout(() => {
+        if (!/\/login$/i.test(window.location.pathname)) {
+          window.location.replace("/login");
+        }
+      }, 10);
     }
   };
 
